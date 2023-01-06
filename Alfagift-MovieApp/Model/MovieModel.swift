@@ -7,17 +7,6 @@
 
 import Foundation
 
-
-struct Movie : Codable {
-    let title: String
-    let poster_path: String?
-    let release_date: String
-}
-
-struct MovieList : Codable {
-    let results: [Movie]
-}
-
 struct DiscoverMovie: Decodable {
     var page: Int
     var results: [Film]

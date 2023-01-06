@@ -13,7 +13,7 @@ class MovieViewModel {
     private var apiService = ApiService()
      var discoverMovies = [Film]()
     
-    func fetchPopularMoviesData(completion: @escaping () -> ()) {
+    func fetchDiscoverMoviesData(completion: @escaping () -> ()) {
         
         // weak self - prevent retain cycles
         apiService.getPopularMoviesData { [weak self] (result) in

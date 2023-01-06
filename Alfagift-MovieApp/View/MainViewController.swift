@@ -11,89 +11,19 @@ import UIKit
 
 class MainViewController : UIViewController , UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
-    
-    var movies : [Movie] = []
-    
     var discoverMovies : DiscoverMovie = DiscoverMovie(page: 0, results: [], totalPages: 0, totalResults: 0)
-    let serialQueue = DispatchQueue(label: "getdata")
-    
     var vm = MovieViewModel()
-    
-    
-    // get data from api
-    let apiKey = "c410263697615899edf2bdf7903a1a05"
-    let movieDBUrl = URL(string: "https://api.themoviedb.org/3/discover/movie?api_key=c410263697615899edf2bdf7903a1a05")!
     let imageBaseUrl = "https://image.tmdb.org/t/p/w500"
-    
-    let session = URLSession.shared
-    
-    func getMoviesFromAPI(){
-        let request = URLRequest(url: movieDBUrl)
-        
-        let task = session.dataTask(with: request) { data, response, error in
-            if let data = data {
-                let decoder = JSONDecoder()
-                do {
-                    let res = try decoder.decode(DiscoverMovie.self, from: data)
-                    
-                    // use the movie data here
-                    if self.discoverMovies.results.count == 0 {
-                        self.discoverMovies = res
-                    }
-                    else {
-                        self.discoverMovies.results.append(contentsOf: res.results)
-                        self.discoverMovies.page += res.page
-                        self.discoverMovies.totalPages += res.totalPages
-                        self.discoverMovies.totalResults += res.totalResults
-                    }
-                    
-                    print(self.discoverMovies.results.count)
-                    
-                } catch {
-                    print(error)
-                }
-            }
-        }
-        task.resume()
-    }
-    
-    
-    
     
     private let collectionView = UICollectionView(
         frame: .zero,
         collectionViewLayout: UICollectionViewFlowLayout()
     )
-    
-    func appendData() {
-//        for _ in 1...10 {
-//            movies.append(Movie(
-//                title: "Movie \(movies.count + 1)",
-//                poster_path: "https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg", release_date: ""
-//            ))
-//        }
-        
-        serialQueue.async { [self] in
-            getMoviesFromAPI()
-        }
-        
-        DispatchQueue.main.async {
-            print(self.discoverMovies)
-            
-            self.collectionView.reloadData()
-        }
-    }
-    
-    
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         title = "Movie List"
         navigationController?.navigationBar.prefersLargeTitles = true
-        
-        let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
-        layout.sectionInset = UIEdgeInsets(top: 20, left: 0, bottom: 10, right: 0)
         
         collectionView.register(MovieCardCollectionViewCell.self, forCellWithReuseIdentifier: MovieCardCollectionViewCell.identifier)
         collectionView.delegate = self
@@ -102,15 +32,11 @@ class MainViewController : UIViewController , UICollectionViewDelegate, UICollec
 
         // Do any additional setup after loading the view.
         self.navigationItem.setHidesBackButton(true, animated: true)
-//        appendData()
         
-        vm.fetchPopularMoviesData {
-            print("on fetch data")
+        vm.fetchDiscoverMoviesData {
             self.collectionView.reloadData()
             self.discoverMovies.results = self.vm.discoverMovies
         }
-       
-        
     }
     
     override func viewDidLayoutSubviews() {
@@ -131,8 +57,6 @@ class MainViewController : UIViewController , UICollectionViewDelegate, UICollec
         return cell
     }
     
-    
-    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(
             width: (view.frame.size.width/2 ) - 16,
@@ -150,7 +74,10 @@ class MainViewController : UIViewController , UICollectionViewDelegate, UICollec
     
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         if indexPath.row == discoverMovies.results.count - 1  {
-//            appendData()
+            vm.fetchDiscoverMoviesData {
+                self.discoverMovies.results.append(contentsOf: self.vm.discoverMovies)
+                collectionView.reloadData()
+            }
         }
     }
     
