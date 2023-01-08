@@ -21,6 +21,8 @@ class MovieViewModel {
     }
     
     func fetchDiscoverMoviesData(completion: @escaping () -> ()) {
+        // update connection status when back to online
+        self.isConnectionOn = Reachability.isConnectedToNetwork()
         
         if self.isConnectionOn {
             print("trying get data form api")

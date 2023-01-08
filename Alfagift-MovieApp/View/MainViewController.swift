@@ -19,6 +19,8 @@ class MainViewController : UIViewController , UICollectionViewDelegate, UICollec
         frame: .zero,
         collectionViewLayout: UICollectionViewFlowLayout()
     )
+    
+    private let refreshControl = UIRefreshControl()
 
     override func viewDidLoad(){
         super.viewDidLoad()
@@ -39,6 +41,24 @@ class MainViewController : UIViewController , UICollectionViewDelegate, UICollec
             print("hello", self.discoverMovies.results.count)
             print("coredata: ", self.vm.coredataMovieCount())
         }
+        
+        refreshControl.addTarget(self, action: #selector(didPullToRefresh(_:)), for: .valueChanged)
+        collectionView.alwaysBounceVertical = true
+        collectionView.refreshControl = refreshControl // iOS 10+
+    }
+    
+    @objc
+    private func didPullToRefresh(_ sender: Any) {
+        // Do you your api calls in here, and then asynchronously remember to stop the
+        // refreshing when you've got a result (either positive or negative)
+        vm.fetchDiscoverMoviesData { [self] in
+           
+            self.discoverMovies.results = self.vm.discoverMovies
+            self.collectionView.reloadData()
+            print("hello", self.discoverMovies.results.count)
+            print("coredata: ", self.vm.coredataMovieCount())
+        }
+        refreshControl.endRefreshing()
     }
     
     override func viewDidLayoutSubviews() {
@@ -48,7 +68,7 @@ class MainViewController : UIViewController , UICollectionViewDelegate, UICollec
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if discoverMovies.results.count == 0 {
-            self.collectionView.setEmptyMessage("No Movie to show,\n Please check you Internet Connection")
+            self.collectionView.setEmptyMessage("No Movie to show,\n Please check you Internet Connection\nThen pull to refresh the page")
         }else{
             self.collectionView.restore()
         }

@@ -112,27 +112,12 @@ extension UICollectionView {
             imageView.clipsToBounds = true
             imageView.translatesAutoresizingMaskIntoConstraints = false
             imageView.image = UIImage(systemName: "wifi.exclamationmark")
-//            imageView.frame.size = CGSize(width: 100, height: 100)
             return imageView
         }()
-        
-        let buttonReload : UIButton = {
-            let button = UIButton()
-            button.translatesAutoresizingMaskIntoConstraints = false
-            button.setTitle("Reload", for: .normal)
-            button.setTitleColor(.white, for: .normal)
-            button.frame.size = CGSize( width: 100, height: 50)
-            button.addTarget(self, action: #selector(reloadFunc), for: .touchUpInside)
-            button.backgroundColor = .systemBlue
-            button.layer.cornerRadius  = 10
-            return button
-        }()
-        
         
         
         view.addSubview(messageLabel)
         view.addSubview(imageView)
-        view.addSubview(buttonReload)
         
         NSLayoutConstraint.activate([
             imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
@@ -143,10 +128,6 @@ extension UICollectionView {
             
             messageLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant:  12),
             messageLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            
-            buttonReload.topAnchor.constraint(equalTo: messageLabel.bottomAnchor, constant: 12),
-            buttonReload.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            buttonReload.widthAnchor.constraint(equalToConstant: 120)
         ])
         
         
