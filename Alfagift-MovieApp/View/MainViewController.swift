@@ -47,6 +47,12 @@ class MainViewController : UIViewController , UICollectionViewDelegate, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if discoverMovies.results.count == 0 {
+            self.collectionView.setEmptyMessage("No Movie to show,\n Please check you Internet Connection")
+        }else{
+            self.collectionView.restore()
+        }
+        
         return discoverMovies.results.count
     }
     

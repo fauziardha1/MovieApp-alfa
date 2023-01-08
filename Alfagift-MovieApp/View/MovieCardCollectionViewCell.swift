@@ -90,3 +90,52 @@ extension UIImageView {
         }
     }
 }
+
+extension UICollectionView {
+    
+
+    func setEmptyMessage(_ message: String) {
+        let view = UIView()
+        
+        let messageLabel = UILabel(frame: CGRect(x: 0, y: 0, width: self.bounds.size.width, height: self.bounds.size.height))
+        messageLabel.text = message
+        messageLabel.textColor = .black
+        messageLabel.numberOfLines = 0;
+        messageLabel.textAlignment = .center;
+        messageLabel.font = UIFont(name: "TrebuchetMS", size: 15)
+        messageLabel.sizeToFit()
+        messageLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        let imageView : UIImageView = {
+            let imageView = UIImageView()
+            imageView.contentMode = .scaleAspectFit
+            imageView.clipsToBounds = true
+            imageView.translatesAutoresizingMaskIntoConstraints = false
+            imageView.image = UIImage(systemName: "wifi.exclamationmark")
+//            imageView.frame.size = CGSize(width: 100, height: 100)
+            return imageView
+        }()
+        
+        view.addSubview(messageLabel)
+        view.addSubview(imageView)
+        
+        NSLayoutConstraint.activate([
+            imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            imageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/3),
+            imageView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/3),
+            
+            
+            messageLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant:  12),
+            messageLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+        ])
+        
+        
+
+        self.backgroundView = view;
+    }
+
+    func restore() {
+        self.backgroundView = nil
+    }
+}
