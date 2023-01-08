@@ -101,7 +101,8 @@ class MainViewController : UIViewController , UICollectionViewDelegate, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        if indexPath.row == discoverMovies.results.count - 1  {
+        if indexPath.row == discoverMovies.results.count - 1 && vm.getConnectionStatus() {
+            vm.setNextpage()
             vm.fetchDiscoverMoviesData {
                 self.discoverMovies.results.append(contentsOf: self.vm.discoverMovies)
                 collectionView.reloadData()

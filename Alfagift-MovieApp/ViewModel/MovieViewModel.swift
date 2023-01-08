@@ -20,6 +20,14 @@ class MovieViewModel {
         isConnectionOn = Reachability.isConnectedToNetwork()
     }
     
+    func setNextpage()  {
+        self.apiService.page += 1
+    }
+    
+    func getConnectionStatus() -> Bool {
+        Reachability.isConnectedToNetwork()
+    }
+    
     func fetchDiscoverMoviesData(completion: @escaping () -> ()) {
         // update connection status when back to online
         self.isConnectionOn = Reachability.isConnectedToNetwork()
@@ -27,7 +35,7 @@ class MovieViewModel {
         if self.isConnectionOn {
             print("trying get data form api")
             // weak self - prevent retain cycles
-            apiService.getPopularMoviesData { [weak self] (result) in
+            apiService.getDiscoverMoviesData { [weak self] (result) in
                 
                 switch result {
                 case .success(let listOf):

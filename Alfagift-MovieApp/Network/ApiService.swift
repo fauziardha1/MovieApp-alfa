@@ -10,12 +10,12 @@ import Foundation
 class ApiService {
     
     private var dataTask: URLSessionDataTask?
+    var page = 1
         
-     func getPopularMoviesData(completion: @escaping (Result<DiscoverMovie,Error>) -> Void) {
+     func getDiscoverMoviesData(completion: @escaping (Result<DiscoverMovie,Error>) -> Void) {
+            let disCoverMoviesURL = "https://api.themoviedb.org/3/discover/movie?api_key=4e0be2c22f7268edffde97481d49064a&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=\(page)&with_watch_monetization_types=flatrate"
             
-            let popularMoviesURL = "https://api.themoviedb.org/3/movie/popular?api_key=4e0be2c22f7268edffde97481d49064a&language=en-US&page=1"
-            
-            guard let url = URL(string: popularMoviesURL) else {return}
+            guard let url = URL(string: disCoverMoviesURL) else {return}
             
             // Create URL Session - work on the background
             dataTask = URLSession.shared.dataTask(with: url) { (data, response, error) in
