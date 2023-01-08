@@ -11,7 +11,8 @@ import Foundation
 class MovieViewModel {
     
     private var apiService = ApiService()
-     var discoverMovies = [Film]()
+    var discoverMovies = [Film]()
+    var isConnectionOn = true
     
     func fetchDiscoverMoviesData(completion: @escaping () -> ()) {
         
@@ -25,6 +26,7 @@ class MovieViewModel {
             case .failure(let error):
                 // Something is wrong with the JSON file or the model
                 print("Error processing json data: \(error)")
+                self?.isConnectionOn = false
             }
         }
     }

@@ -19,8 +19,88 @@ class MainViewController : UIViewController , UICollectionViewDelegate, UICollec
         frame: .zero,
         collectionViewLayout: UICollectionViewFlowLayout()
     )
+    
+    // get reference to object manage context
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
+    // data for table
+    var items : [Movie]?
+    
+    // fetch data from core data and display it
+    func fetchDataFromCoreData(){
+        do {
+            self.items = try context.fetch(Movie.fetchRequest())
+            
+            print(items ?? [] ,"items")
+            
+            DispatchQueue.main.async {
+                self.collectionView.reloadData()
+            }
+        }
+        catch {
+            print("error occure on fetch data from coredata")
+        }
+    }
+    
+    // insert into coredata
+    func saveDataToCoreData(_ film : Film){
+        // create nsobject of Movie
+        let movie = Movie(context: self.context)
+        
+        // edit attribute
+        movie.title = film.title
+        movie.posterPath = film.posterPath
+        movie.adult = film.adult!
+        movie.backdropPath = film.backdropPath
+        movie.genreIDS = film.genreIDS! as NSObject
+        movie.id = Int32(film.id!)
+        movie.originalLanguage = film.originalLanguage
+        movie.originalTitle = film.originalTitle
+        movie.overview = film.overview
+        movie.popularity = film.popularity!
+        movie.releaseDate = film.releaseDate
+        movie.video = film.video!
+        movie.voteAverage = film.voteAverage!
+        movie.voteCount = Int16(film.voteCount!)
+        
+        // save it
+        
+        do {
+            try context.save()
+        }
+        catch {
+            print("error while saving data to coredata")
+        }
+        
+        // show it
+        fetchDataFromCoreData()
+    }
+    
+    // delete a data from coredata
+    func deleteDataFromCoreData(_ film : Film){
+        
+        // get the object data
+        let objToRemove = self.items?.first(where: { Movie in
+            return Movie.id == film.id!
+        })
+        
+        // remove that obj in context
+        self.context.delete(objToRemove!)
+        
+        // save it
+        do {
+            try context.save()
+        }
+        catch {
+            print("error while saving data to coredata")
+        }
+        
+        // fetch again
+        fetchDataFromCoreData()
+        
+    }
 
-    override func viewDidLoad() {
+    override func viewDidLoad(){
         super.viewDidLoad()
         title = "Movie List"
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -33,10 +113,34 @@ class MainViewController : UIViewController , UICollectionViewDelegate, UICollec
         // Do any additional setup after loading the view.
         self.navigationItem.setHidesBackButton(true, animated: true)
         
-        vm.fetchDiscoverMoviesData {
-            self.collectionView.reloadData()
-            self.discoverMovies.results = self.vm.discoverMovies
+        
+        if Reachability.isConnectedToNetwork(){
+            // connected to internet, then fetch from api
+            print("connected to network")
+            
+            vm.fetchDiscoverMoviesData { [self] in
+                self.collectionView.reloadData()
+                self.discoverMovies.results = self.vm.discoverMovies
+                
+                saveDataToCoreData(discoverMovies.results[0])
+                
+                deleteDataFromCoreData(discoverMovies.results[0])
+            }
+            
+            //TODO: save all data that get from api to coredata
+            
+            
+        }else{
+            // no internet connection, then fetch from coredata
+            print("no internet connection")
+            
+            
         }
+        
+        
+        
+        // fetch data from coredata
+        fetchDataFromCoreData()
     }
     
     override func viewDidLayoutSubviews() {
