@@ -210,6 +210,55 @@ class MovieInfoScreenViewController: UIViewController {
         
         return view
     }()
+    
+    lazy var overviewTitle : UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Overview"
+        label.font = UIFont.boldSystemFont(ofSize: 18)
+        return label
+    }()
+    
+    lazy var overviewContent : UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Overview"
+        label.numberOfLines = 100
+        label.font = label.font.withSize(16)
+        return label
+    }()
+    
+    // overview section
+    lazy var overviewSection : UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(overviewTitle)
+        view.addSubview(overviewContent)
+        
+        NSLayoutConstraint.activate([
+            overviewTitle.topAnchor.constraint(equalTo: view.topAnchor),
+            overviewTitle.leftAnchor.constraint(equalTo: view.leftAnchor),
+            
+            overviewContent.topAnchor.constraint(equalTo: overviewTitle.bottomAnchor),
+            overviewContent.leftAnchor.constraint(equalTo: overviewTitle.leftAnchor),
+            overviewContent.widthAnchor.constraint(equalTo: view.widthAnchor, constant:  -24)
+        ])
+        
+        return view
+    }()
+    
+    func setText(){
+        // set duration
+        self.movieDuration.text = String((self.movieDetail.first?.runtime)!) + " minutes"
+        
+        // set rate
+        self.movieRate.text = String((self.movieDetail.first!.voteAverage)!) + " (" + String(self.movieDetail.first!.voteCount!) + " Vote)"
+        
+        // set overview
+        self.overviewContent.text = self.movieDetail.first?.overview ?? "overview"
+    }
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -220,10 +269,11 @@ class MovieInfoScreenViewController: UIViewController {
         view.addSubview(label)
         view.addSubview(backgroundImage)
         view.addSubview(titleSection)
+        view.addSubview(overviewSection)
         
         
         vm.getMoviesDetailFromAPI(id: self.movieID!) {
-            self.label.text = self.vm.getMovieDetailInstance().first?.tagline
+//            self.label.text = self.vm.getMovieDetailInstance().first?.tagline
             self.movieDetail = self.vm.getMovieDetailInstance()
             
             DispatchQueue.main.async {
@@ -239,11 +289,7 @@ class MovieInfoScreenViewController: UIViewController {
                     index += 1
                 }
                 
-                // set duration
-                self.movieDuration.text = String((self.movieDetail.first?.runtime)!) + " minutes"
-                
-                // set rate
-                self.movieRate.text = String((self.movieDetail.first!.voteAverage)!) + " (" + String(self.movieDetail.first!.voteCount!) + " Vote)"
+                self.setText()
             }
         }
         
@@ -257,6 +303,9 @@ class MovieInfoScreenViewController: UIViewController {
             titleSection.topAnchor.constraint(equalTo: backgroundImage.bottomAnchor),
             titleSection.leftAnchor.constraint(equalTo: view.leftAnchor),
             
+            overviewSection.topAnchor.constraint(equalTo: titleSection.bottomAnchor,constant: 100),
+            overviewSection.leftAnchor.constraint(equalTo: titleSection.leftAnchor, constant: 12),
+            overviewSection.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -24),
         ])
         
         
