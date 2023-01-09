@@ -98,6 +98,82 @@ class MovieInfoScreenViewController: UIViewController {
         return view
     }()
     
+    lazy var movieDuration : UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 2
+        label.font = label.font.withSize(12)
+        label.textColor = .systemGray
+        label.text = ""
+        return label
+    }()
+    
+    lazy var movieDurationLabel : UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 2
+        label.font = label.font.withSize(12)
+        label.textColor = .systemGray
+        label.text = "Duration\t"
+        return label
+    }()
+    
+    lazy var durationHV : UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(movieDurationLabel)
+        view.addSubview(movieDuration)
+        
+        NSLayoutConstraint.activate([
+            movieDurationLabel.topAnchor.constraint(equalTo: view.topAnchor),
+            movieDurationLabel.leftAnchor.constraint(equalTo: view.leftAnchor),
+            
+            movieDuration.leftAnchor.constraint(equalTo: movieDurationLabel.rightAnchor),
+            movieDuration.topAnchor.constraint(equalTo: view.topAnchor),
+            movieDuration.widthAnchor.constraint(equalToConstant: 150)
+        ])
+        
+        return view
+    }()
+    
+    lazy var movieRate : UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 2
+        label.font = label.font.withSize(12)
+        label.textColor = .systemGray
+        label.text = ""
+        return label
+    }()
+    
+    lazy var movieRateLabel : UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 2
+        label.font = label.font.withSize(12)
+        label.textColor = .systemGray
+        label.text = "Rate\t\t"
+        return label
+    }()
+    
+    lazy var rateHV : UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(movieRateLabel)
+        view.addSubview(movieRate)
+        
+        NSLayoutConstraint.activate([
+            movieRateLabel.topAnchor.constraint(equalTo: view.topAnchor),
+            movieRateLabel.leftAnchor.constraint(equalTo: view.leftAnchor),
+            
+            movieRate.leftAnchor.constraint(equalTo: movieRateLabel.rightAnchor),
+            movieRate.topAnchor.constraint(equalTo: view.topAnchor),
+            movieRate.widthAnchor.constraint(equalToConstant: 150)
+        ])
+        
+        return view
+    }()
+    
     
     lazy var titleSection : UIView = {
         let view = UIView()
@@ -105,6 +181,8 @@ class MovieInfoScreenViewController: UIViewController {
         view.addSubview(posterImage)
         view.addSubview(movieTitle)
         view.addSubview(genreHV)
+        view.addSubview(durationHV)
+        view.addSubview(rateHV)
         
         NSLayoutConstraint.activate([
             posterImage.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 32),
@@ -120,6 +198,14 @@ class MovieInfoScreenViewController: UIViewController {
             genreHV.leftAnchor.constraint(equalTo: movieTitle.leftAnchor),
             genreHV.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -50),
             genreHV.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 5/9),
+            
+            durationHV.topAnchor.constraint(equalTo: genreHV.bottomAnchor,constant: 32),
+            durationHV.leftAnchor.constraint(equalTo: genreHV.leftAnchor),
+            durationHV.rightAnchor.constraint(equalTo: genreHV.rightAnchor),
+            
+            rateHV.topAnchor.constraint(equalTo: durationHV.bottomAnchor,constant: 16),
+            rateHV.leftAnchor.constraint(equalTo: durationHV.leftAnchor),
+            rateHV.rightAnchor.constraint(equalTo: durationHV.rightAnchor),
         ])
         
         return view
@@ -137,12 +223,7 @@ class MovieInfoScreenViewController: UIViewController {
         
         
         vm.getMoviesDetailFromAPI(id: self.movieID!) {
-            self.label.text = self.vm.getMovieDetailInstance().first?.tagline ?? "Hello"
-            var text = ""
-            for _ in 1...100{
-                text += "hello world! \n"
-            }
-            self.label.text = text
+            self.label.text = self.vm.getMovieDetailInstance().first?.tagline
             self.movieDetail = self.vm.getMovieDetailInstance()
             
             DispatchQueue.main.async {
@@ -157,6 +238,12 @@ class MovieInfoScreenViewController: UIViewController {
                     self.movieGenre.text! += (index > 0 ? comma : "") +  " \(genre.name!)"
                     index += 1
                 }
+                
+                // set duration
+                self.movieDuration.text = String((self.movieDetail.first?.runtime)!) + " minutes"
+                
+                // set rate
+                self.movieRate.text = String((self.movieDetail.first!.voteAverage)!) + " (" + String(self.movieDetail.first!.voteCount!) + " Vote)"
             }
         }
         
