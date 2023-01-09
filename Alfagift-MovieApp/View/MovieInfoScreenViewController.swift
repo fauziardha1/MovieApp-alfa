@@ -32,7 +32,7 @@ class MovieInfoScreenViewController: UIViewController {
     lazy var label : UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 0
+        label.numberOfLines = 100
         return label
     }()
     
@@ -43,6 +43,87 @@ class MovieInfoScreenViewController: UIViewController {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
+    
+    lazy var posterImage : UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.clipsToBounds = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.layer.cornerRadius = 10
+        return imageView
+    }()
+    lazy var movieTitle : UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 0
+        label.font = UIFont.boldSystemFont(ofSize: 18)
+        return label
+    }()
+    
+    lazy var movieGenre : UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 2
+        label.font = label.font.withSize(12)
+        label.textColor = .systemGray
+        label.text = ""
+        return label
+    }()
+    
+    lazy var movieGenreLabel : UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 2
+        label.font = label.font.withSize(12)
+        label.textColor = .systemGray
+        label.text = "Genre\t"
+        return label
+    }()
+    
+    lazy var genreHV : UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(movieGenreLabel)
+        view.addSubview(movieGenre)
+        
+        NSLayoutConstraint.activate([
+            movieGenreLabel.topAnchor.constraint(equalTo: view.topAnchor),
+            movieGenreLabel.leftAnchor.constraint(equalTo: view.leftAnchor),
+            
+            movieGenre.leftAnchor.constraint(equalTo: movieGenreLabel.rightAnchor),
+            movieGenre.topAnchor.constraint(equalTo: view.topAnchor),
+            movieGenre.widthAnchor.constraint(equalToConstant: 150)
+        ])
+        
+        return view
+    }()
+    
+    
+    lazy var titleSection : UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(posterImage)
+        view.addSubview(movieTitle)
+        view.addSubview(genreHV)
+        
+        NSLayoutConstraint.activate([
+            posterImage.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 32),
+            posterImage.topAnchor.constraint(equalTo: view.topAnchor, constant: -75),
+            posterImage.widthAnchor.constraint(equalToConstant: 100),
+            posterImage.heightAnchor.constraint(equalToConstant: 150),
+            
+            movieTitle.leftAnchor.constraint(equalTo: posterImage.rightAnchor, constant: 12),
+            movieTitle.topAnchor.constraint(equalTo: view.topAnchor, constant: -12),
+            movieTitle.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -12),
+            
+            genreHV.topAnchor.constraint(equalTo: movieTitle.bottomAnchor, constant: 10),
+            genreHV.leftAnchor.constraint(equalTo: movieTitle.leftAnchor),
+            genreHV.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -50),
+            genreHV.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 5/9),
+        ])
+        
+        return view
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,13 +133,30 @@ class MovieInfoScreenViewController: UIViewController {
         
         view.addSubview(label)
         view.addSubview(backgroundImage)
+        view.addSubview(titleSection)
+        
         
         vm.getMoviesDetailFromAPI(id: self.movieID!) {
             self.label.text = self.vm.getMovieDetailInstance().first?.tagline ?? "Hello"
+            var text = ""
+            for _ in 1...100{
+                text += "hello world! \n"
+            }
+            self.label.text = text
             self.movieDetail = self.vm.getMovieDetailInstance()
             
             DispatchQueue.main.async {
                 self.backgroundImage.load(url: URL(string: self.imageBaseUrl + self.movieDetail.first!.backdropPath!)!)
+                
+                self.posterImage.load(url: URL(string: self.imageBaseUrl + self.movieDetail.first!.posterPath! )!)
+                self.movieTitle.text = self.movieDetail.first!.title
+                
+                let comma = ","
+                var index = 0
+                for genre in self.movieDetail.first!.genres! {
+                    self.movieGenre.text! += (index > 0 ? comma : "") +  " \(genre.name!)"
+                    index += 1
+                }
             }
         }
         
@@ -68,6 +166,9 @@ class MovieInfoScreenViewController: UIViewController {
             
             backgroundImage.topAnchor.constraint(equalTo: view.topAnchor),
             backgroundImage.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1),
+            
+            titleSection.topAnchor.constraint(equalTo: backgroundImage.bottomAnchor),
+            titleSection.leftAnchor.constraint(equalTo: view.leftAnchor),
             
         ])
         
