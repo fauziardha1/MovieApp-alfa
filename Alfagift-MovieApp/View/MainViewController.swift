@@ -111,7 +111,11 @@ class MainViewController : UIViewController , UICollectionViewDelegate, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        self.navigationController?.pushViewController(MovieInfoScreenViewController(), animated: true)
+        var movieInfoVC = MovieInfoScreenViewController()
+        movieInfoVC.setMovieID(self.discoverMovies.results[indexPath.row].id!)
+        movieInfoVC.setCurrentMovie(self.discoverMovies.results[indexPath.row])
+        
+        self.navigationController?.pushViewController(movieInfoVC, animated: true)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {

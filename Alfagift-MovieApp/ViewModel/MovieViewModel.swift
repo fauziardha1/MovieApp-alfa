@@ -14,6 +14,7 @@ class MovieViewModel {
     private var coreDataManager = CoreDataManger()
     var discoverMovies = [Film]()
     var isConnectionOn = true
+    private var movieDetail = [MovieDetail]()
     
     init() {
         // get connection status
@@ -84,5 +85,52 @@ class MovieViewModel {
     // get number of data in coredata
     func coredataMovieCount() -> Int{
         return self.coreDataManager.items?.count ?? 0
+    }
+    
+    // get movie's detail from api
+    func getMoviesDetailFromAPI(id : Int, completion : @escaping () ->())  {
+        // update connection status when back to online
+        self.isConnectionOn = Reachability.isConnectedToNetwork()
+        
+        if self.isConnectionOn {
+            print("trying get data movie detail form api")
+            // weak self - prevent retain cycles
+            apiService.getMoviesDetail(id: id) { [weak self] (result) in
+                
+                switch result {
+                case .success(let detail):
+                    self?.movieDetail = [detail]
+                    
+                    // checking data
+                    print("movie id:\(id) \n", "detail movie: \(String(describing: self?.movieDetail))")
+                    
+                    // TODO: save to coredata
+//                    for movie in self!.discoverMovies {
+//                        self!.coreDataManager.saveDataToCoreData(movie)
+//                    }
+                    
+                    // set it done using completion
+                    completion()
+                    
+                case .failure(let error):
+                    // Something is wrong with the JSON file or the model
+                    print("Error processing json data: \(error)")
+                    self?.isConnectionOn = false
+                }
+            }
+            
+        }
+        else {
+            // get detail from coredata
+            
+            // set it done using completion
+            
+        }
+            
+    }
+    
+    func getMovieDetailInstance() -> [MovieDetail] {
+        return self.movieDetail
+        
     }
 }

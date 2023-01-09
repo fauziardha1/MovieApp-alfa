@@ -8,12 +8,74 @@
 import UIKit
 
 class MovieInfoScreenViewController: UIViewController {
+    
+    private var movieID : Int?
+    private var currentMovie : Film?
+    private var vm = MovieViewModel()
+    
+    var movieDetail = [MovieDetail]()
+    
+    let imageBaseUrl = "https://image.tmdb.org/t/p/w500"
+    
+    func setMovieID(_ id : Int )  {
+        self.movieID = id
+    }
+    
+    func getMovieID() -> Int? {
+        self.movieID
+    }
+    
+    func setCurrentMovie(_ movie : Film)  {
+        self.currentMovie = movie
+    }
+    
+    lazy var label : UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    lazy var backgroundImage : UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.clipsToBounds = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        view.backgroundColor = .cyan
+        view.backgroundColor = .white
+        
+        view.addSubview(label)
+        view.addSubview(backgroundImage)
+        
+        vm.getMoviesDetailFromAPI(id: self.movieID!) {
+            self.label.text = self.vm.getMovieDetailInstance().first?.tagline ?? "Hello"
+            self.movieDetail = self.vm.getMovieDetailInstance()
+            
+            DispatchQueue.main.async {
+                self.backgroundImage.load(url: URL(string: self.imageBaseUrl + self.movieDetail.first!.backdropPath!)!)
+            }
+        }
+        
+        NSLayoutConstraint.activate([
+            label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            
+            backgroundImage.topAnchor.constraint(equalTo: view.topAnchor),
+            backgroundImage.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1),
+            
+        ])
+        
+        
+        
+        
+        
+        
     }
     
 
