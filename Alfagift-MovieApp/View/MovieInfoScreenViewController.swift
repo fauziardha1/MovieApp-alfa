@@ -16,6 +16,7 @@ class MovieInfoScreenViewController: UIViewController {
     
     var movieDetail = [MovieDetail]()
     var reviews = [Item]()
+    var trailerURL = ""
     
     let imageBaseUrl = "https://image.tmdb.org/t/p/w500"
     
@@ -189,12 +190,12 @@ class MovieInfoScreenViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             posterImage.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 32),
-            posterImage.topAnchor.constraint(equalTo: view.topAnchor, constant: -75),
+            posterImage.topAnchor.constraint(equalTo: view.topAnchor, constant: -50),
             posterImage.widthAnchor.constraint(equalToConstant: 100),
-            posterImage.heightAnchor.constraint(equalToConstant: 150),
+            posterImage.heightAnchor.constraint(equalToConstant: 120),
             
             movieTitle.leftAnchor.constraint(equalTo: posterImage.rightAnchor, constant: 12),
-            movieTitle.topAnchor.constraint(equalTo: view.topAnchor, constant: -12),
+            movieTitle.topAnchor.constraint(equalTo: view.topAnchor, constant: -24),
             movieTitle.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -12),
             
             genreHV.topAnchor.constraint(equalTo: movieTitle.bottomAnchor, constant: 10),
@@ -267,6 +268,7 @@ class MovieInfoScreenViewController: UIViewController {
     private let tableview : UITableView = {
         let tv = UITableView()
         tv.translatesAutoresizingMaskIntoConstraints = false
+        tv.backgroundColor = UIColor(red: 0.77, green: 0.87, blue: 0.96, alpha: 1.00)
         return tv
     }()
     
@@ -283,11 +285,18 @@ class MovieInfoScreenViewController: UIViewController {
     }()
     
     @objc func buttonPressed(){
+        let player : YouTubePlayer = YouTubePlayer(
+            source: .video(id: self.trailerURL),
+            configuration: .init(
+                autoPlay: true
+            )
+        )
+        
         // Initialize a YouTubePlayerViewController
         let youTubePlayerViewController = YouTubePlayerViewController(
-            player: "https://youtube.com/watch?v=K1RepjSXQV8"
+            player: player
         )
-
+        
         // Present YouTubePlayerViewController
         self.present(youTubePlayerViewController, animated: true)
 
@@ -346,6 +355,12 @@ class MovieInfoScreenViewController: UIViewController {
                 self.reviews = self.vm.getReviews()
                 self.tableview.reloadData()
                 print("count:", self.reviews.count)
+            }
+        }
+        
+        vm.getMovieTrailerFromAPI(id: self.movieID!) {
+            DispatchQueue.main.async {
+                self.trailerURL = self.vm.getTrailerURL()
             }
         }
         

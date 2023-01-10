@@ -40,6 +40,7 @@ class ReviewCell: UITableViewCell {
         addSubview(iconImage)
         addSubview(titleLabel)
         addSubview(descLabel)
+        backgroundColor = UIColor(red: 0.77, green: 0.87, blue: 0.96, alpha: 1.00)
         
         NSLayoutConstraint.activate([
             // icon
