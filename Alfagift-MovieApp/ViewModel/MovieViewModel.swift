@@ -15,6 +15,7 @@ class MovieViewModel {
     var discoverMovies = [Film]()
     var isConnectionOn = true
     private var movieDetail = [MovieDetail]()
+    private var reviews = [Item]()
     
     init() {
         // get connection status
@@ -23,6 +24,10 @@ class MovieViewModel {
     
     func setNextpage()  {
         self.apiService.page += 1
+    }
+    
+    func setNextPageReview(){
+        self.apiService.reviewPage += 1
     }
     
     func getConnectionStatus() -> Bool {
@@ -102,7 +107,7 @@ class MovieViewModel {
                     self?.movieDetail = [detail]
                     
                     // checking data
-                    print("movie id:\(id) \n", "detail movie: \(String(describing: self?.movieDetail))")
+//                    print("movie id:\(id) \n", "detail movie: \(String(describing: self?.movieDetail))")
                     
                     // TODO: save to coredata
 //                    for movie in self!.discoverMovies {
@@ -132,5 +137,52 @@ class MovieViewModel {
     func getMovieDetailInstance() -> [MovieDetail] {
         return self.movieDetail
         
+    }
+    
+    // get movie reviews from api
+    func getMovieReviewsFromAPI(id : Int, completion : @escaping () ->())  {
+        // update connection status when back to online
+        self.isConnectionOn = Reachability.isConnectedToNetwork()
+        
+        if self.isConnectionOn {
+            print("trying get data movie detail form api")
+            // weak self - prevent retain cycles
+            apiService.getMovieReview(id: id) { [weak self] (result) in
+                
+                switch result {
+                case .success(let data):
+                    self?.reviews = data.results!
+                    
+                    // checking data
+                    print("movie id:\(id) \n", "detail movie: \(String(describing: self?.reviews))")
+                    
+                    // TODO: save to coredata
+//                    for movie in self!.discoverMovies {
+//                        self!.coreDataManager.saveDataToCoreData(movie)
+//                    }
+                    
+                    // set it done using completion
+                    completion()
+                    
+                case .failure(let error):
+                    // Something is wrong with the JSON file or the model
+                    print("Error processing json data: \(error)")
+                    self?.isConnectionOn = false
+                }
+            }
+            
+        }
+        else {
+            print("no internet connection")
+            // get detail from coredata
+            
+            // set it done using completion
+            
+        }
+            
+    }
+    
+    func getReviews() -> [Item] {
+        return self.reviews
     }
 }
