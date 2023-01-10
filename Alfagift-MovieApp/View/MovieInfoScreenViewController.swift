@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import YouTubeiOSPlayerHelper
 
 class MovieInfoScreenViewController: UIViewController {
     
@@ -14,6 +15,7 @@ class MovieInfoScreenViewController: UIViewController {
     private var vm = MovieViewModel()
     
     var movieDetail = [MovieDetail]()
+    var reviews = [Item]()
     
     let imageBaseUrl = "https://image.tmdb.org/t/p/w500"
     
@@ -46,7 +48,7 @@ class MovieInfoScreenViewController: UIViewController {
     
     lazy var posterImage : UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
+        imageView.contentMode = .scaleToFill
         imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.layer.cornerRadius = 10
@@ -55,7 +57,8 @@ class MovieInfoScreenViewController: UIViewController {
     lazy var movieTitle : UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 0
+//        movieTitle.contentMode = .scaleAspectFit
+        label.numberOfLines = 1
         label.font = UIFont.boldSystemFont(ofSize: 18)
         return label
     }()
@@ -235,6 +238,7 @@ class MovieInfoScreenViewController: UIViewController {
         
         view.addSubview(overviewTitle)
         view.addSubview(overviewContent)
+        view.contentMode = .scaleAspectFit
         
         NSLayoutConstraint.activate([
             overviewTitle.topAnchor.constraint(equalTo: view.topAnchor),
@@ -242,7 +246,7 @@ class MovieInfoScreenViewController: UIViewController {
             
             overviewContent.topAnchor.constraint(equalTo: overviewTitle.bottomAnchor),
             overviewContent.leftAnchor.constraint(equalTo: overviewTitle.leftAnchor),
-            overviewContent.widthAnchor.constraint(equalTo: view.widthAnchor, constant:  -24)
+            overviewContent.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 24)
         ])
         
         return view
@@ -259,17 +263,31 @@ class MovieInfoScreenViewController: UIViewController {
         self.overviewContent.text = self.movieDetail.first?.overview ?? "overview"
     }
     
+    // tableview instance
+    private let tableview : UITableView = {
+        let tv = UITableView()
+        tv.translatesAutoresizingMaskIntoConstraints = false
+        return tv
+    }()
+    
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         // Do any additional setup after loading the view.
-        view.backgroundColor = .white
+        view.backgroundColor = UIColor(red: 0.77, green: 0.87, blue: 0.96, alpha: 1.00)
         
         view.addSubview(label)
         view.addSubview(backgroundImage)
         view.addSubview(titleSection)
         view.addSubview(overviewSection)
+        
+        tableview.dataSource = self
+        tableview.delegate = self
+        tableview.register(ReviewCell.self, forCellReuseIdentifier: ReviewCell.id)
+        
+//        view.addSubview(tableview)
+        overviewSection.addSubview(tableview)
         
         
         vm.getMoviesDetailFromAPI(id: self.movieID!) {
@@ -291,21 +309,42 @@ class MovieInfoScreenViewController: UIViewController {
                 
                 self.setText()
             }
+            
+            
+        }
+        
+        vm.getMovieReviewsFromAPI(id: self.movieID!) { [self] in
+            self.tableview.reloadData()
+            
+            DispatchQueue.main.async {
+                self.tableview.reloadData()
+                self.reviews = self.vm.getReviews()
+                self.tableview.reloadData()
+                print("count:", self.reviews.count)
+            }
         }
         
         NSLayoutConstraint.activate([
-            label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+//            label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            label.topAnchor.constraint(equalTo: overviewSection.bottomAnchor, constant: 100),
             
             backgroundImage.topAnchor.constraint(equalTo: view.topAnchor),
             backgroundImage.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1),
             
             titleSection.topAnchor.constraint(equalTo: backgroundImage.bottomAnchor),
             titleSection.leftAnchor.constraint(equalTo: view.leftAnchor),
+            titleSection.rightAnchor.constraint(equalTo: view.rightAnchor),
+            titleSection.heightAnchor.constraint(equalToConstant: 0),
             
             overviewSection.topAnchor.constraint(equalTo: titleSection.bottomAnchor,constant: 100),
             overviewSection.leftAnchor.constraint(equalTo: titleSection.leftAnchor, constant: 12),
-            overviewSection.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -24),
+            overviewSection.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 24),
+            overviewSection.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            tableview.bottomAnchor.constraint(equalTo: overviewSection.bottomAnchor),
+            tableview.leftAnchor.constraint(equalTo: overviewSection.leftAnchor),
+            tableview.rightAnchor.constraint(equalTo: overviewSection.rightAnchor),
+            tableview.topAnchor.constraint(equalTo: overviewContent.bottomAnchor, constant: 12),
         ])
         
         
@@ -340,3 +379,50 @@ struct MovieInfoScreenController_Preview : PreviewProvider {
 
 
 #endif
+
+
+extension MovieInfoScreenViewController : UITableViewDataSource, UITableViewDelegate{
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        print("count:", self.reviews.count)
+        return self.reviews.count == 0 ? 1 :
+        self.reviews.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        print("count:", self.reviews.count)
+        let cell = tableView.dequeueReusableCell(withIdentifier: ReviewCell.id, for: indexPath) as! ReviewCell
+        if self.reviews.count == 0 || self.reviews[indexPath.row].authorDetails?.avatarPath == nil {
+            cell.iconImage.image = UIImage(systemName: "person.crop.circle.fill")
+        }else{
+            cell.iconImage.load(
+                url: URL(
+                    string: self.imageBaseUrl
+                            + (self.reviews[indexPath.row].authorDetails?.avatarPath)!
+                          )!
+                )
+        }
+        cell.titleLabel.text = self.reviews.count > 0 ? self.reviews[indexPath.row].author : "No Review Yet"
+        cell.descLabel.text = self.reviews.count > 0 ? self.reviews[indexPath.row].content : "No Review Yet"
+        
+        return cell
+    }
+    
+    
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return "Reviews"
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if indexPath.row == self.reviews.count - 1 && vm.getConnectionStatus() {
+            vm.setNextPageReview()
+            vm.getMovieReviewsFromAPI(id: self.movieID!){
+                self.reviews.append(contentsOf: self.vm.getReviews())
+                self.tableview.reloadData()
+            }
+        }
+    }
+
+    
+}

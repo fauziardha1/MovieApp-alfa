@@ -115,6 +115,8 @@ class MainViewController : UIViewController , UICollectionViewDelegate, UICollec
         movieInfoVC.setMovieID(self.discoverMovies.results[indexPath.row].id!)
         movieInfoVC.setCurrentMovie(self.discoverMovies.results[indexPath.row])
         
+        let testTrailer = TrailerViewController()
+        
         self.navigationController?.pushViewController(movieInfoVC, animated: true)
     }
     
