@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import YouTubeiOSPlayerHelper
+import YouTubePlayerKit
 
 class MovieInfoScreenViewController: UIViewController {
     
@@ -270,6 +270,29 @@ class MovieInfoScreenViewController: UIViewController {
         return tv
     }()
     
+    lazy var buttonPlay : UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        button.setBackgroundImage(UIImage(systemName: "play.circle"), for: .normal)
+        button.layer.cornerRadius = 12
+        button.addTarget(self, action: #selector(buttonPressed), for: .touchUpInside)
+        button.tintColor = .white
+        return button
+    }()
+    
+    @objc func buttonPressed(){
+        // Initialize a YouTubePlayerViewController
+        let youTubePlayerViewController = YouTubePlayerViewController(
+            player: "https://youtube.com/watch?v=K1RepjSXQV8"
+        )
+
+        // Present YouTubePlayerViewController
+        self.present(youTubePlayerViewController, animated: true)
+
+    }
+    
     
 
     override func viewDidLoad() {
@@ -281,6 +304,7 @@ class MovieInfoScreenViewController: UIViewController {
         view.addSubview(backgroundImage)
         view.addSubview(titleSection)
         view.addSubview(overviewSection)
+        view.addSubview(buttonPlay)
         
         tableview.dataSource = self
         tableview.delegate = self
@@ -288,6 +312,7 @@ class MovieInfoScreenViewController: UIViewController {
         
 //        view.addSubview(tableview)
         overviewSection.addSubview(tableview)
+        
         
         
         vm.getMoviesDetailFromAPI(id: self.movieID!) {
@@ -330,6 +355,8 @@ class MovieInfoScreenViewController: UIViewController {
             
             backgroundImage.topAnchor.constraint(equalTo: view.topAnchor),
             backgroundImage.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1),
+            buttonPlay.centerXAnchor.constraint(equalTo: backgroundImage.centerXAnchor),
+            buttonPlay.centerYAnchor.constraint(equalTo: backgroundImage.centerYAnchor),
             
             titleSection.topAnchor.constraint(equalTo: backgroundImage.bottomAnchor),
             titleSection.leftAnchor.constraint(equalTo: view.leftAnchor),
