@@ -16,6 +16,7 @@ class MovieViewModel {
     var isConnectionOn = true
     private var movieDetail = [MovieDetail]()
     private var reviews = [Item]()
+    private var trailerURL = ""
     
     init() {
         // get connection status
@@ -185,4 +186,53 @@ class MovieViewModel {
     func getReviews() -> [Item] {
         return self.reviews
     }
+    
+    
+    // TODO: get video url from api
+    func getMovieTrailerFromAPI(id : Int, completion : @escaping () ->())  {
+        // update connection status when back to online
+        self.isConnectionOn = Reachability.isConnectedToNetwork()
+        
+        if self.isConnectionOn {
+            print("trying get data movie detail form api")
+            // weak self - prevent retain cycles
+            apiService.getVideoTrailerURL(id: id) { [weak self] (result) in
+                
+                switch result {
+                case .success(let data):
+                    for trailer in data.videos! {
+                        if trailer.type == "Trailer"{
+                            self?.trailerURL = trailer.key!
+                            break
+                        }
+                    }
+                    
+                    // checking data
+                    print("movie id:\(id) \n", "trailer: \(String(describing: self?.trailerURL))")
+                    
+                    // set it done using completion
+                    completion()
+                    
+                case .failure(let error):
+                    // Something is wrong with the JSON file or the model
+                    print("Error processing json data: \(error)")
+                    self?.isConnectionOn = false
+                }
+            }
+            
+        }
+        else {
+            print("no internet connection")
+            // get detail from coredata
+            
+            // set it done using completion
+            
+        }
+            
+    }
+    
+    func getTrailerURL() -> String{
+        return self.trailerURL
+    }
+    
 }
