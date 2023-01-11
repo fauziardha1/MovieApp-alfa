@@ -198,4 +198,9 @@ class ApiService {
         }
         dataTask?.resume()
     }
+    
+    
+    func getDiscoverMoviePage() -> Int{
+        return self.page
+    }
 }

@@ -47,9 +47,13 @@ class MovieViewModel {
                 switch result {
                 case .success(let listOf):
                     self?.discoverMovies = listOf.results
-                    // save to coredata
-                    for movie in self!.discoverMovies {
-                        self!.coreDataManager.saveDataToCoreData(movie)
+                    self?.coreDataManager.fetchMovies() // populate data in coredata
+                    
+                    // save to coredata when the data is not there
+                    if (self?.apiService.getDiscoverMoviePage())! * 20 > (self?.coreDataManager.items?.count ?? 0){
+                        for movie in self!.discoverMovies {
+                            self!.coreDataManager.saveDataToCoreData(movie)
+                        }
                     }
                     
                     // set it donw using completion
