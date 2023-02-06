@@ -10,15 +10,12 @@ import YouTubePlayerKit
 
 class MovieInfoScreenViewController: UIViewController {
     
-    private var movieID : Int?
+    var movieID : Int?
     private var currentMovie : Film?
-    private var vm = MovieViewModel()
-    
+    var vm = MovieViewModel()
     var movieDetail = [MovieDetail]()
     var reviews = [Item]()
     var trailerURL = ""
-    
-    let imageBaseUrl = "https://image.tmdb.org/t/p/w500"
     
     func setMovieID(_ id : Int )  {
         self.movieID = id
@@ -60,7 +57,6 @@ class MovieInfoScreenViewController: UIViewController {
     lazy var movieTitle : UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-//        movieTitle.contentMode = .scaleAspectFit
         label.numberOfLines = 1
         label.font = UIFont.boldSystemFont(ofSize: 18)
         return label
@@ -267,7 +263,7 @@ class MovieInfoScreenViewController: UIViewController {
     }
     
     // tableview instance
-    private let tableview : UITableView = {
+    let tableview : UITableView = {
         let tv = UITableView()
         tv.translatesAutoresizingMaskIntoConstraints = false
         tv.backgroundColor = UIColor(red: 0.77, green: 0.87, blue: 0.96, alpha: 1.00)
@@ -289,28 +285,17 @@ class MovieInfoScreenViewController: UIViewController {
     @objc func buttonPressed(){
         let player : YouTubePlayer = YouTubePlayer(
             source: .video(id: self.trailerURL),
-            configuration: .init(
-                autoPlay: true
-            )
+            configuration: .init(autoPlay: true)
         )
-        
-        // Initialize a YouTubePlayerViewController
-        let youTubePlayerViewController = YouTubePlayerViewController(
-            player: player
-        )
-        
-        // Present YouTubePlayerViewController
+        let youTubePlayerViewController = YouTubePlayerViewController(player: player)
         self.present(youTubePlayerViewController, animated: true)
-
     }
     
     
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        view.backgroundColor = UIColor(red: 0.77, green: 0.87, blue: 0.96, alpha: 1.00)
-        
+        view.backgroundColor = MISBGColor
         view.addSubview(label)
         view.addSubview(backgroundImage)
         view.addSubview(titleSection)
@@ -320,60 +305,50 @@ class MovieInfoScreenViewController: UIViewController {
         tableview.dataSource = self
         tableview.delegate = self
         tableview.register(ReviewCell.self, forCellReuseIdentifier: ReviewCell.id)
-        
-//        view.addSubview(tableview)
         overviewSection.addSubview(tableview)
         
         
         
-        vm.getMoviesDetailFromAPI(id: self.movieID!) {
-//            self.label.text = self.vm.getMovieDetailInstance().first?.tagline
-            self.movieDetail = self.vm.getMovieDetailInstance()
-            
-            DispatchQueue.main.async {
-                if self.movieDetail.first?.backdropPath == nil || self.vm.getConnectionStatus() == false {
-                    self.backgroundImage.image = UIImage(systemName: "photo")
-                    self.backgroundImage.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true
-                    self.backgroundImage.heightAnchor.constraint(equalToConstant: 300).isActive = true
-                }else{
-                    
-                    self.backgroundImage.load(url: URL(string: self.imageBaseUrl + self.movieDetail.first!.backdropPath!)!)
-                }
-                
-                self.posterImage.load(url: URL(string: self.imageBaseUrl + self.movieDetail.first!.posterPath! )!)
-                self.movieTitle.text = self.movieDetail.first!.title
-                
-                let comma = ","
-                var index = 0
-                self.movieGenre.numberOfLines = (self.movieDetail.first?.genres?.count ?? 0 ) > 1 ? 2 : 1
-                for genre in self.movieDetail.first!.genres! {
-                    self.movieGenre.text! += (index > 0 ? comma : "") +  " \(genre.name!)"
-                    index += 1
-                }
-                
-                self.setText()
-            }
-            
-            
+        self.prepareConstraint()
+        
+        // when no internet connection
+        if vm.getConnectionStatus() == false{
+            noConnectionView()
         }
         
-        vm.getMovieReviewsFromAPI(id: self.movieID!) { [self] in
-            self.tableview.reloadData()
-            
-            DispatchQueue.main.async {
-                self.tableview.reloadData()
-                self.reviews = self.vm.getReviews()
-                self.tableview.reloadData()
-                print("count:", self.reviews.count)
-            }
-        }
+    }
+    
+    
+    func noConnectionView(){
+        // background image placeholder
+        self.backgroundImage.image = UIImage(systemName: photoImgStr)
+        self.backgroundImage.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true
+        self.backgroundImage.heightAnchor.constraint(equalToConstant: 300).isActive = true
         
-        vm.getMovieTrailerFromAPI(id: self.movieID!) {
-            DispatchQueue.main.async {
-                self.trailerURL = self.vm.getTrailerURL()
-            }
-        }
+        // poster placeholder
+        posterImage.tintColor = .white
         
+        // genre
+        self.movieGenre.text = noDataMessage
+        
+        // duration
+        self.movieDuration.text = noDataMessage
+        
+        // rate
+        self.movieRate.text = String(self.currentMovie?.voteAverage ?? 0) + " (" + String(self.currentMovie?.voteCount ?? 0) + " vote)"
+        
+        // overview
+        self.overviewContent.text = noOverviewMessage
+        
+        // button plat
+        self.buttonPlay.setBackgroundImage(UIImage(systemName: playLogoStr), for: .normal)
+        self.buttonPlay.isEnabled = false
+        
+        // set title
+        self.movieTitle.text = self.currentMovie?.title ?? titleStr
+    }
+    
+    func prepareConstraint(){
         NSLayoutConstraint.activate([
             backgroundImage.topAnchor.constraint(equalTo: view.topAnchor),
             backgroundImage.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1),
@@ -395,103 +370,50 @@ class MovieInfoScreenViewController: UIViewController {
             tableview.rightAnchor.constraint(equalTo: overviewSection.rightAnchor),
             tableview.topAnchor.constraint(equalTo: overviewContent.bottomAnchor, constant: 12),
         ])
-        
-        // when no internet connection
-        if vm.getConnectionStatus() == false{
-            whenNoInternetConnection()
+    }
+    
+    func prepareData(){
+        vm.getMoviesDetailFromAPI(id: self.movieID!) {
+            self.movieDetail = self.vm.getMovieDetailInstance()
+            
+            DispatchQueue.main.async {
+                if self.movieDetail.first?.backdropPath == nil || self.vm.getConnectionStatus() == false {
+                    self.backgroundImage.image = UIImage(systemName: photoImgStr)
+                    self.backgroundImage.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true
+                    self.backgroundImage.heightAnchor.constraint(equalToConstant: 300).isActive = true
+                }else{
+                    self.backgroundImage.load(url: URL(string: imageBaseUrl + self.movieDetail.first!.backdropPath!)!)
+                }
+                
+                self.posterImage.load(url: URL(string: imageBaseUrl + self.movieDetail.first!.posterPath! )!)
+                self.movieTitle.text = self.movieDetail.first!.title
+                var index = 0
+                self.movieGenre.numberOfLines = (self.movieDetail.first?.genres?.count ?? 0 ) > 1 ? 2 : 1
+                
+                for genre in self.movieDetail.first!.genres! {
+                    self.movieGenre.text! += (index > 0 ? comma : "") +  " \(genre.name!)"
+                    index += 1
+                }
+                self.setText()
+            }
+            
+            
         }
         
-    }
-    
-    
-    func whenNoInternetConnection(){
-        
-        // background image placeholder
-        self.backgroundImage.image = UIImage(systemName: "photo")
-        self.backgroundImage.widthAnchor.constraint(equalTo: self.view.widthAnchor).isActive = true
-        self.backgroundImage.heightAnchor.constraint(equalToConstant: 300).isActive = true
-        
-        // poster placeholder
-        posterImage.tintColor = .white
-        
-        // genre
-        self.movieGenre.text = "No data yet"
-        
-        // duration
-        self.movieDuration.text = "No data yet"
-        
-        // rate
-        self.movieRate.text = String(self.currentMovie?.voteAverage ?? 0) + " (" + String(self.currentMovie?.voteCount ?? 0) + " vote)"
-        
-        // overview
-        self.overviewContent.text = "Can't get the overview content yet. Please check your internet connection first."
-        
-        // button plat
-        self.buttonPlay.setBackgroundImage(UIImage(systemName: "play.slash.fill"), for: .normal)
-        self.buttonPlay.isEnabled = false
-        
-        // set title
-        self.movieTitle.text = self.currentMovie?.title ?? "Title"
-    }
-
-}
-
-#if DEBUG
-import SwiftUI
-struct MovieInfoScreenController_Preview : PreviewProvider {
-    static var previews: some View{
-        ViewControllerPreview {
-            MovieInfoScreenViewController()
-        }
-    }
-}
-
-
-#endif
-
-
-extension MovieInfoScreenViewController : UITableViewDataSource, UITableViewDelegate{
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print("count:", self.reviews.count)
-        return self.reviews.count == 0 ? 1 :
-        self.reviews.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        print("count:", self.reviews.count)
-        let cell = tableView.dequeueReusableCell(withIdentifier: ReviewCell.id, for: indexPath) as! ReviewCell
-        if self.reviews.count == 0 || self.reviews[indexPath.row].authorDetails?.avatarPath == nil {
-            cell.iconImage.image = UIImage(systemName: "person.crop.circle.fill")
-        }else{
-            cell.iconImage.load(
-                url: URL(
-                    string: self.imageBaseUrl
-                            + (self.reviews[indexPath.row].authorDetails?.avatarPath)!
-                          )!
-                )
-        }
-        cell.titleLabel.text = self.reviews.count > 0 ? self.reviews[indexPath.row].author : "No Review Yet"
-        cell.descLabel.text = self.reviews.count > 0 ? self.reviews[indexPath.row].content : "No Review Yet"
-        
-        return cell
-    }
-    
-    
-    
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return "Reviews"
-    }
-    
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if indexPath.row == self.reviews.count - 1 && vm.getConnectionStatus() {
-            vm.setNextPageReview()
-            vm.getMovieReviewsFromAPI(id: self.movieID!){
-                self.reviews.append(contentsOf: self.vm.getReviews())
+        vm.getMovieReviewsFromAPI(id: self.movieID!) { [self] in
+            self.tableview.reloadData()
+            DispatchQueue.main.async {
                 self.tableview.reloadData()
+                self.reviews = self.vm.getReviews()
+                self.tableview.reloadData()
+            }
+        }
+        
+        vm.getMovieTrailerFromAPI(id: self.movieID!) {
+            DispatchQueue.main.async {
+                self.trailerURL = self.vm.getTrailerURL()
             }
         }
     }
 
-    
 }

@@ -47,7 +47,6 @@ class CoreDataManger{
         movie.voteCount = Int16(film.voteCount!)
         
         // save it
-        
         do {
             try context.save()
         }

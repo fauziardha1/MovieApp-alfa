@@ -8,7 +8,7 @@
 import UIKit
 
 class MovieCardCollectionViewCell: UICollectionViewCell {
-    static let identifier = "TextItemCell"
+    static let identifier = movieCardID
     
     lazy var imageView : UIImageView = {
         let imageView = UIImageView()
@@ -20,8 +20,7 @@ class MovieCardCollectionViewCell: UICollectionViewCell {
     
     lazy var movieName : UILabel = {
         let label = UILabel()
-        
-        label.text = "Movie 1"
+        label.text = movieStrDefault
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
         label.textColor = .black
@@ -38,9 +37,7 @@ class MovieCardCollectionViewCell: UICollectionViewCell {
         contentView.backgroundColor = .systemRed
         contentView.layer.cornerRadius = 12
         
-       
-        
-        imageView.image = UIImage(systemName: "film.fill")
+        imageView.image = UIImage(systemName: filmLogoStr)
         imageView.tintColor = .white
         
         NSLayoutConstraint.activate([
@@ -50,15 +47,10 @@ class MovieCardCollectionViewCell: UICollectionViewCell {
             imageView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.8),
             imageView.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.8),
             
-            
             movieName.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 4),
             movieName.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            
             movieName.widthAnchor.constraint(equalTo: contentView.widthAnchor)
-            
-            
         ])
-        
     }
     
     required init?(coder: NSCoder) {
@@ -72,7 +64,6 @@ class MovieCardCollectionViewCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-//        imageView.image = nil
     }
 }
 
@@ -92,17 +83,15 @@ extension UIImageView {
 }
 
 extension UICollectionView {
-    
-
     func setEmptyMessage(_ message: String) {
         let view = UIView()
-        
         let messageLabel = UILabel(frame: CGRect(x: 0, y: 0, width: self.bounds.size.width, height: self.bounds.size.height))
+        
         messageLabel.text = message
         messageLabel.textColor = .black
         messageLabel.numberOfLines = 0;
         messageLabel.textAlignment = .center;
-        messageLabel.font = UIFont(name: "TrebuchetMS", size: 15)
+        messageLabel.font = UIFont(name: projectFontStr, size: 15)
         messageLabel.sizeToFit()
         messageLabel.translatesAutoresizingMaskIntoConstraints = false
         
@@ -111,10 +100,9 @@ extension UICollectionView {
             imageView.contentMode = .scaleAspectFit
             imageView.clipsToBounds = true
             imageView.translatesAutoresizingMaskIntoConstraints = false
-            imageView.image = UIImage(systemName: "wifi.exclamationmark")
+            imageView.image = UIImage(systemName: wifiIconStr)
             return imageView
         }()
-        
         
         view.addSubview(messageLabel)
         view.addSubview(imageView)
@@ -125,20 +113,12 @@ extension UICollectionView {
             imageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/3),
             imageView.heightAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1/3),
             
-            
             messageLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant:  12),
             messageLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
-        
-        
-
         self.backgroundView = view;
     }
     
-    @objc func reloadFunc(){
-        print("need to reload this page")
-    }
-
     func restore() {
         self.backgroundView = nil
     }

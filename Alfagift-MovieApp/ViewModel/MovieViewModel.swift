@@ -19,7 +19,6 @@ class MovieViewModel {
     private var trailerURL = ""
     
     init() {
-        // get connection status
         isConnectionOn = Reachability.isConnectedToNetwork()
     }
     
@@ -36,46 +35,35 @@ class MovieViewModel {
     }
     
     func fetchDiscoverMoviesData(completion: @escaping () -> ()) {
-        // update connection status when back to online
         self.isConnectionOn = Reachability.isConnectedToNetwork()
         
         if self.isConnectionOn {
-            print("trying get data form api")
-            // weak self - prevent retain cycles
             apiService.getDiscoverMoviesData { [weak self] (result) in
                 
                 switch result {
                 case .success(let listOf):
                     self?.discoverMovies = listOf.results
-                    self?.coreDataManager.fetchMovies() // populate data in coredata
+                    self?.coreDataManager.fetchMovies()
                     
-                    // save to coredata when the data is not there
                     if (self?.apiService.getDiscoverMoviePage())! * 20 > (self?.coreDataManager.items?.count ?? 0){
                         for movie in self!.discoverMovies {
                             self!.coreDataManager.saveDataToCoreData(movie)
                         }
                     }
-                    
-                    // set it donw using completion
                     completion()
                     
-                case .failure(let error):
-                    // Something is wrong with the JSON file or the model
-                    print("Error processing json data: \(error)")
+                case .failure(_):
                     self?.isConnectionOn = false
                 }
             }
             
         } else {
             
-            print("trying to get data form coredata")
-            // get from coredata
             coreDataManager.fetchMovies()
             for data in coreDataManager.items! {
                 let film = Film(adult: data.adult, backdropPath: data.backdropPath, genreIDS: data.genreIDS!, id: Int(data.id), originalLanguage: data.originalLanguage, originalTitle: data.originalTitle, overview: data.overview, popularity: data.popularity, posterPath: data.posterPath, releaseDate: data.releaseDate, title: data.title, video: data.video, voteAverage: data.voteAverage, voteCount: Int(exactly: data.voteCount)!)
                 self.discoverMovies.append(film)
             }
-            // set it donw using completion
             completion()
             
         }
@@ -99,41 +87,23 @@ class MovieViewModel {
     
     // get movie's detail from api
     func getMoviesDetailFromAPI(id : Int, completion : @escaping () ->())  {
-        // update connection status when back to online
         self.isConnectionOn = Reachability.isConnectedToNetwork()
         
         if self.isConnectionOn {
-            print("trying get data movie detail form api")
-            // weak self - prevent retain cycles
             apiService.getMoviesDetail(id: id) { [weak self] (result) in
                 
                 switch result {
                 case .success(let detail):
                     self?.movieDetail = [detail]
-                    
-                    // checking data
-//                    print("movie id:\(id) \n", "detail movie: \(String(describing: self?.movieDetail))")
-                    
-                    // TODO: save to coredata
-//                    for movie in self!.discoverMovies {
-//                        self!.coreDataManager.saveDataToCoreData(movie)
-//                    }
-                    
-                    // set it done using completion
                     completion()
                     
-                case .failure(let error):
-                    // Something is wrong with the JSON file or the model
-                    print("Error processing json data: \(error)")
+                case .failure(_):
                     self?.isConnectionOn = false
                 }
             }
             
         }
         else {
-            // get detail from coredata
-            
-            // set it done using completion
             
         }
             
@@ -146,42 +116,23 @@ class MovieViewModel {
     
     // get movie reviews from api
     func getMovieReviewsFromAPI(id : Int, completion : @escaping () ->())  {
-        // update connection status when back to online
         self.isConnectionOn = Reachability.isConnectedToNetwork()
         
         if self.isConnectionOn {
-            print("trying get data movie detail form api")
-            // weak self - prevent retain cycles
             apiService.getMovieReview(id: id) { [weak self] (result) in
                 
                 switch result {
                 case .success(let data):
                     self?.reviews = data.results!
-                    
-                    // checking data
-                    print("movie id:\(id) \n", "detail movie: \(String(describing: self?.reviews))")
-                    
-                    // TODO: save to coredata
-//                    for movie in self!.discoverMovies {
-//                        self!.coreDataManager.saveDataToCoreData(movie)
-//                    }
-                    
-                    // set it done using completion
                     completion()
                     
-                case .failure(let error):
-                    // Something is wrong with the JSON file or the model
-                    print("Error processing json data: \(error)")
+                case .failure(_):
                     self?.isConnectionOn = false
                 }
             }
             
         }
         else {
-            print("no internet connection")
-            // get detail from coredata
-            
-            // set it done using completion
             
         }
             
@@ -194,12 +145,9 @@ class MovieViewModel {
     
     // TODO: get video url from api
     func getMovieTrailerFromAPI(id : Int, completion : @escaping () ->())  {
-        // update connection status when back to online
         self.isConnectionOn = Reachability.isConnectedToNetwork()
         
         if self.isConnectionOn {
-            print("trying get data movie detail form api")
-            // weak self - prevent retain cycles
             apiService.getVideoTrailerURL(id: id) { [weak self] (result) in
                 
                 switch result {
@@ -210,27 +158,15 @@ class MovieViewModel {
                             break
                         }
                     }
-                    
-                    // checking data
-                    print("movie id:\(id) \n", "trailer: \(String(describing: self?.trailerURL))")
-                    
-                    // set it done using completion
                     completion()
                     
-                case .failure(let error):
-                    // Something is wrong with the JSON file or the model
-                    print("Error processing json data: \(error)")
+                case .failure(_):
                     self?.isConnectionOn = false
                 }
             }
             
         }
         else {
-            print("no internet connection")
-            // get detail from coredata
-            
-            // set it done using completion
-            
         }
             
     }
