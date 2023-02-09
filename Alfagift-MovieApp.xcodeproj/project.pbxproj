@@ -242,6 +242,7 @@
 			isa = PBXGroup;
 			children = (
 				05668D71296AE9A500E6FDC7 /* CoreDataManager.swift */,
+				0585FB182968895600D4DA6C /* Movies.xcdatamodeld */,
 			);
 			path = CoreData;
 			sourceTree = "<group>";
@@ -295,7 +296,6 @@
 				055B23072994D7EC0066646B /* Core */,
 				055B22FE2994D5E20066646B /* App */,
 				055B22F62994D4CC0066646B /* Features */,
-				0585FB182968895600D4DA6C /* Movies.xcdatamodeld */,
 				057F8C4129671F0500A2CC82 /* Info.plist */,
 			);
 			path = "Alfagift-MovieApp";
