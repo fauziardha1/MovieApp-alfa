@@ -18,11 +18,18 @@ class MainViewController : UIViewController {
         frame: .zero,
         collectionViewLayout: UICollectionViewFlowLayout()
     )
+    private let appearance = UINavigationBarAppearance()
     
     override func viewDidLoad(){
         super.viewDidLoad()
         title = mainViewTitle
         navigationController?.navigationBar.prefersLargeTitles = true
+        view.backgroundColor = .black
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+        appearance.backgroundColor = .black
+        navigationItem.standardAppearance = appearance
+        navigationItem.scrollEdgeAppearance = appearance
         
         collectionView.register(MovieCardCollectionViewCell.self, forCellWithReuseIdentifier: MovieCardCollectionViewCell.identifier)
         collectionView.delegate = self
@@ -30,6 +37,7 @@ class MainViewController : UIViewController {
         refreshControl.addTarget(self, action: #selector(didPullToRefresh(_:)), for: .valueChanged)
         collectionView.alwaysBounceVertical = true
         collectionView.refreshControl = refreshControl
+        collectionView.backgroundColor = .black
         
         view.addSubview(collectionView)
         self.prepareData()

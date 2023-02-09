@@ -12,7 +12,7 @@ class MovieInfoScreenViewController: UIViewController {
     
     var movieID : Int?
     private var currentMovie : Film?
-    var vm = MovieViewModel()
+    var vm = DetailViewModel()
     var movieDetail = [MovieDetail]()
     var reviews = [Item]()
     var trailerURL = ""
@@ -59,6 +59,7 @@ class MovieInfoScreenViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
         label.font = UIFont.boldSystemFont(ofSize: 18)
+        label.textColor = .white
         return label
     }()
     
@@ -218,6 +219,7 @@ class MovieInfoScreenViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Overview"
         label.font = UIFont.boldSystemFont(ofSize: 18)
+        label.textColor = .white
         return label
     }()
     
@@ -227,6 +229,7 @@ class MovieInfoScreenViewController: UIViewController {
         label.text = "Overview"
         label.numberOfLines = 100
         label.font = label.font.withSize(16)
+        label.textColor = .systemGray
         return label
     }()
     
@@ -266,7 +269,7 @@ class MovieInfoScreenViewController: UIViewController {
     let tableview : UITableView = {
         let tv = UITableView()
         tv.translatesAutoresizingMaskIntoConstraints = false
-        tv.backgroundColor = UIColor(red: 0.77, green: 0.87, blue: 0.96, alpha: 1.00)
+        tv.backgroundColor = .darkGray.withAlphaComponent(0.1)
         return tv
     }()
     
@@ -290,12 +293,12 @@ class MovieInfoScreenViewController: UIViewController {
         let youTubePlayerViewController = YouTubePlayerViewController(player: player)
         self.present(youTubePlayerViewController, animated: true)
     }
-    
-    
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = MISBGColor
+        view.backgroundColor = .black
+        self.navigationController?.navigationBar.tintColor = .white
+        
         view.addSubview(label)
         view.addSubview(backgroundImage)
         view.addSubview(titleSection)
@@ -314,6 +317,8 @@ class MovieInfoScreenViewController: UIViewController {
         // when no internet connection
         if vm.getConnectionStatus() == false{
             noConnectionView()
+        }else{
+            self.prepareData()
         }
         
     }
@@ -375,6 +380,7 @@ class MovieInfoScreenViewController: UIViewController {
     func prepareData(){
         vm.getMoviesDetailFromAPI(id: self.movieID!) {
             self.movieDetail = self.vm.getMovieDetailInstance()
+            print(self.movieDetail)
             
             DispatchQueue.main.async {
                 if self.movieDetail.first?.backdropPath == nil || self.vm.getConnectionStatus() == false {

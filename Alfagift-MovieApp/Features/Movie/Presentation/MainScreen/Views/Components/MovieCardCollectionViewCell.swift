@@ -23,7 +23,7 @@ class MovieCardCollectionViewCell: UICollectionViewCell {
         label.text = movieStrDefault
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
-        label.textColor = .black
+        label.textColor = .white
         label.numberOfLines = 2
         label.font = UIFont.boldSystemFont(ofSize: 12.0)
         
@@ -34,7 +34,7 @@ class MovieCardCollectionViewCell: UICollectionViewCell {
         super.init(frame: frame)
         contentView.addSubview(imageView)
         contentView.addSubview(movieName)
-        contentView.backgroundColor = .systemRed
+        contentView.backgroundColor = .systemGray.withAlphaComponent(0.3)
         contentView.layer.cornerRadius = 12
         
         imageView.image = UIImage(systemName: filmLogoStr)

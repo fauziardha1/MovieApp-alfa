@@ -22,15 +22,15 @@ class ReviewCell: UITableViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .boldSystemFont(ofSize: 20)
-        label.textColor = .black
+        label.textColor = .systemGray
         return label
     }()
     
     lazy var descLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 17)
         label.numberOfLines = 0
+        label.textColor = .systemGray
         return label
     }()
     
@@ -39,7 +39,7 @@ class ReviewCell: UITableViewCell {
         addSubview(iconImage)
         addSubview(titleLabel)
         addSubview(descLabel)
-        backgroundColor = UIColor(red: 0.77, green: 0.87, blue: 0.96, alpha: 1.00)
+        backgroundColor = .darkGray.withAlphaComponent(0.2)
         
         NSLayoutConstraint.activate([
             iconImage.leadingAnchor.constraint(equalTo: leadingAnchor),
