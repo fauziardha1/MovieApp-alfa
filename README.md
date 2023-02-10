@@ -53,7 +53,7 @@ This movie app allows users to discover new and popular movies. The app features
 - But if you want to test this apps, you can clone this repo and run it on your machine.
 
 ## App Galery
-<img src="https://user-images.githubusercontent.com/35651583/212132402-a1ef36dc-e655-4217-9311-24c9f68a9cf9.png" width="45%"></img> <img src="https://user-images.githubusercontent.com/35651583/212132481-a75b4520-3572-496f-a683-ae471ba8e582.png" width="45%"></img> <img src="https://user-images.githubusercontent.com/35651583/212132726-c33d3488-a531-44a3-9c73-a6761629e929.png" width="45%"></img> <img src="https://user-images.githubusercontent.com/35651583/212132806-6e10c07f-8ce0-47a1-a44a-d90398466d71.png" width="45%">
+<img src="https://user-images.githubusercontent.com/35651583/212132402-a1ef36dc-e655-4217-9311-24c9f68a9cf9.png" width="45%"></img> <img src="https://user-images.githubusercontent.com/35651583/216689657-51ec9e01-dd21-45a7-8a40-0ec3e9d45c98.png" width="45%"></img> <img src="https://user-images.githubusercontent.com/35651583/216689911-41221348-6149-4d17-9bcc-5ae9e42aff4d.png" width="45%"></img> <img src="https://user-images.githubusercontent.com/35651583/216690170-c0d25382-4c28-49d5-91c9-7dcad19813db.png" width="45%">
 
 ## Support
 - This app is not great enough yet, any tips and suggestion are wellcome.
